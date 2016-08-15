@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: iPgQeII45oxiZP88VitJhjHbRT4nheGWI87Pj8xdh4fPvtgyUvXrlGfINkFO6ApoCMXw3+a9kCZDOVfVvWEx017f5czS8TyTfYAEGOxrkI3pI4PTHrHlTDy4je0Q8Ss4ENLJnEHCSMkfwOAdcftRHElPxvjk2A0vDm6LefKrJJOlV+4GzT7SZp9P/bYfyMvg3DxYg8JMgOcxDf0jSZyzq2t5tT/FfbyIBQuviOofl09zHvo34MBgKiEu0GZq4aP0MwNCh+xPZm5wGwhcZs22pUDVSeNwAJjSvP0zF8H8q4F3TtcIQtVvg00HCPa+9kLV32qZKvvCcSnz3Dziv2y0LqUHL7v1nBQavL7qnucE48PBJuU+IiOgVlKa8SQcCAsUEP0FEUyKxmy0NeB8o/zSWdpw037lSZBiJVSDyCZU1EzEtlomXJX/qIH1usFY3gjG6hZrwLdnOmvYGvlCvwjOKbGnWbFsyLiZN9uSwDvvtX3dfxix58FwUE2T8OZxrk16Y1ahtN7ZEFe94rfO38b0H8snq6YaoOX1YifS6PgGvjFUFxzYhV7ysQKaT0yq40yYdTUEvTpDjtOmARsTAq0VjeE7weEbF95I4i8tbM/CMr6h9pUtUmoFPD/w2/r84CgSgK2SruPlHyL4DSENVW43SwHasXOohV/54cgXfmC7z0E=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/A-Record-of-Buddhistic-Kingdoms--13-Being-an-account-by-the-Chinese-monk-Fa-hsien-of-travels-i__2124
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
